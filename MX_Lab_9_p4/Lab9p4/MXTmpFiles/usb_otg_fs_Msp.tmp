@@ -1,0 +1,89 @@
+
+#nvoid HAL_HCD_MspInit(HCD_HandleTypeDef* hcdHandle)
+{
+#tGPIO_InitTypeDef GPIO_InitStruct = {0};
+#tRCC_PeriphCLKInitTypeDef PeriphClkInit = {0};
+#tif(hcdHandle->Instance==USB_OTG_FS)
+#t{
+#t/* USER CODE BEGIN USB_OTG_FS_MspInit 0 */
+#n#t/* USER CODE END USB_OTG_FS_MspInit 0 */
+#n#t/** Initializes the peripherals clock#n#t*/
+#t#tPeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USB;
+#t#tPeriphClkInit.UsbClockSelection = RCC_USBCLKSOURCE_PLLSAI1;
+#t#tPeriphClkInit.PLLSAI1.PLLSAI1Source = RCC_PLLSOURCE_MSI;
+#t#tPeriphClkInit.PLLSAI1.PLLSAI1M = 1;
+#t#tPeriphClkInit.PLLSAI1.PLLSAI1N = 24;
+#t#tPeriphClkInit.PLLSAI1.PLLSAI1P = RCC_PLLP_DIV7;
+#t#tPeriphClkInit.PLLSAI1.PLLSAI1Q = RCC_PLLQ_DIV2;
+#t#tPeriphClkInit.PLLSAI1.PLLSAI1R = RCC_PLLR_DIV2;
+#t#tPeriphClkInit.PLLSAI1.PLLSAI1ClockOut = RCC_PLLSAI1_48M2CLK;
+#t#tif (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
+#t#t{
+#t#t#tError_Handler();
+#t#t}
+#n
+#n
+#t
+#t#t__HAL_RCC_GPIOA_CLK_ENABLE();
+#t#t/**USB_OTG_FS GPIO Configuration#t#t
+#t#tPA11#t#t ------> USB_OTG_FS_DM
+#t#tPA12#t#t ------> USB_OTG_FS_DP #n#t#t*/
+#t#tGPIO_InitStruct.Pin = OTG_FS_DM_Pin|OTG_FS_DP_Pin;
+#t#tGPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+#t#tGPIO_InitStruct.Pull = GPIO_NOPULL;
+#t#tGPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+#t#tGPIO_InitStruct.Alternate = GPIO_AF10_OTG_FS;
+#t#tHAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+#n
+#t#t/* Peripheral clock enable */
+#t#t__HAL_RCC_USB_OTG_FS_CLK_ENABLE();
+#n#t#t/* Enable VDDUSB */
+#t#tif(__HAL_RCC_PWR_IS_CLK_DISABLED())
+#t#t{
+#t#t#t__HAL_RCC_PWR_CLK_ENABLE();
+#t#t#tHAL_PWREx_EnableVddUSB();
+#t#t#t__HAL_RCC_PWR_CLK_DISABLE();
+#t#t}
+#t#telse
+#t#t{
+#t#t#tHAL_PWREx_EnableVddUSB();
+#t#t}
+#n#t#t/* Peripheral interrupt init */
+#t#tHAL_NVIC_SetPriority(OTG_FS_IRQn, 0, 0);
+#t#tHAL_NVIC_EnableIRQ(OTG_FS_IRQn);
+#t/* USER CODE BEGIN USB_OTG_FS_MspInit 1 */
+#n#t/* USER CODE END USB_OTG_FS_MspInit 1 */
+#t}
+}
+
+#nvoid HAL_HCD_MspDeInit(HCD_HandleTypeDef* hcdHandle)
+{
+#tif(hcdHandle->Instance==USB_OTG_FS)
+#t{
+#t/* USER CODE BEGIN USB_OTG_FS_MspDeInit 0 */
+#n#t/* USER CODE END USB_OTG_FS_MspDeInit 0 */
+#t#t/* Peripheral clock disable */
+#t#t__HAL_RCC_USB_OTG_FS_CLK_DISABLE();
+#t
+#t#t/**USB_OTG_FS GPIO Configuration#t#t
+#t#tPA11#t#t ------> USB_OTG_FS_DM
+#t#tPA12#t#t ------> USB_OTG_FS_DP #n#t#t*/
+#t#tHAL_GPIO_DeInit(GPIOA, OTG_FS_DM_Pin|OTG_FS_DP_Pin);
+#n
+#n#t#t/* Disable VDDUSB */
+#t#tif(__HAL_RCC_PWR_IS_CLK_DISABLED())
+#t#t{
+#t#t#t__HAL_RCC_PWR_CLK_ENABLE();
+#t#t#tHAL_PWREx_DisableVddUSB();
+#t#t#t__HAL_RCC_PWR_CLK_DISABLE();
+#t#t}
+#t#telse
+#t#t{
+#t#t#tHAL_PWREx_DisableVddUSB();
+#t#t}
+#n#t#t/* Peripheral interrupt Deinit*/
+#t#tHAL_NVIC_DisableIRQ(OTG_FS_IRQn);#n
+#t/* USER CODE BEGIN USB_OTG_FS_MspDeInit 1 */
+#n#t/* USER CODE END USB_OTG_FS_MspDeInit 1 */
+#t}
+}
