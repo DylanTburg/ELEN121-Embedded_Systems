@@ -1,0 +1,1 @@
+extern int buffer[SAMPLE_COUNT];
